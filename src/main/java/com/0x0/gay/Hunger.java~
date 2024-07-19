@@ -1,4 +1,4 @@
-package net.silthus.template;
+package com.OxO.gay;
 
 import co.aikar.commands.PaperCommandManager;
 import kr.entree.spigradle.annotations.PluginMain;
@@ -8,8 +8,8 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.economy.Economy;
-import net.silthus.template.commands.TemplateCommands;
-import net.silthus.template.integrations.vault.VaultProvider;
+import com.OxO.gay.commands.*;
+import com.OxO.gay.integrations.vault.VaultProvider;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.event.EventHandler;
@@ -19,31 +19,28 @@ import org.bukkit.event.server.ServiceRegisterEvent;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.plugin.java.JavaPluginLoader;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Locale;
 import java.util.Objects;
+import com.OxO.gay.listeners.*;
+import com.OxO.gay.ammo.*;
 
-public class TemplatePlugin extends JavaPlugin implements Listener {
+public class TestBench extends JavaPlugin implements Listener {
 
     @Getter
     @Accessors(fluent = true)
-    private static TemplatePlugin instance;
+    private static TestBench instance;
     @Getter
     @Setter(AccessLevel.PACKAGE)
     private VaultProvider vault;
     private PaperCommandManager commandManager;
 
-    public TemplatePlugin() {
+    public TestBench() {
         instance = this;
     }
-
-    public TemplatePlugin(
-            JavaPluginLoader loader, PluginDescriptionFile description, File dataFolder, File file) {
-        super(loader, description, dataFolder, file);
-        instance = this;
+    public static TestBench getInstance() {
+	return instance;
     }
 
     @Override
@@ -52,7 +49,13 @@ public class TemplatePlugin extends JavaPlugin implements Listener {
 
         setupVaultIntegration();
         setupCommands();
-
+	Bullets.init(this);
+        Shells.init(this);
+	getServer().getPluginManager().registerEvents(new Pistol(), this);
+	new FoodListener(this);
+	new KeyCardListener(this);
+	getServer().getPluginManager().registerEvents(new Shotgun(), this);
+	getServer().getPluginManager().registerEvents(new RocketLauncher(), this);
         getServer().getPluginManager().registerEvents(this, this);
     }
 
@@ -90,7 +93,10 @@ public class TemplatePlugin extends JavaPlugin implements Listener {
 
         loadCommandLocales(commandManager);
 
-        commandManager.registerCommand(new TemplateCommands());
+        this.getServer().getCommandMap().register("doom", new Head("head"));
+        this.getServer().getCommandMap().register("doom", new Commands("idclev"));
+        this.getServer().getCommandMap().register("doom", new Test("test"));
+        this.getServer().getCommandMap().register("doom", new Test2("test2"));
     }
 
     // see https://github.com/aikar/commands/wiki/Locales
